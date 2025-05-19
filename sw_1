@@ -42,5 +42,5 @@ unsigned char GetMaxByte(const unsigned int* arr, size_t size) {
         }
     }
     return max;
-}
+}   
 
