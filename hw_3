@@ -1,0 +1,89 @@
+#include "benchmark.h"
+#include <cstdlib>
+#include <algorithm>
+
+using namespace std;
+using namespace chrono;
+
+
+const size_t TEST_SIZES[] = {100, 1000, 5000, 10000, 25000, 50000, 100000, 200000, 500000, 1000000};
+const int TEST_COUNT = sizeof(TEST_SIZES) / sizeof(TEST_SIZES[0]);
+
+
+bool defaultComp(int a, int b) { return a < b; }
+
+
+int* generateRandomArray(size_t size) {
+    int* arr = new int[size];
+    for (size_t i = 0; i < size; i++) {
+        arr[i] = rand() % 1000000;
+    }
+    return arr;
+}
+
+
+int* copyArray(const int* src, size_t size) {
+    int* dst = new int[size];
+    copy(src, src + size, dst);
+    return dst;
+}
+
+
+void runSortTest(void (*sortFunc)(int*, size_t, bool (*)(int, int)), 
+                const char* sortName) {
+    cout << "\nBenchmarking " << sortName << ":\n";
+    cout << "Size\tTime (ms)\n";
+    
+    for (int i = 0; i < TEST_COUNT; i++) {
+        size_t size = TEST_SIZES[i];
+        int* arr = generateRandomArray(size);
+        int* arrCopy = copyArray(arr, size);
+        
+        // Разогрев
+        if (i == 0) {
+            sortFunc(arrCopy, size, defaultComp);
+            delete[] arrCopy;
+            arrCopy = copyArray(arr, size);
+        }
+        
+        auto start = steady_clock::now();
+        sortFunc(arrCopy, size, defaultComp);
+        auto end = steady_clock::now();
+        
+        auto duration = duration_cast<milliseconds>(end - start);
+        cout << size << "\t" << duration.count() << endl;
+        
+        delete[] arr;
+        delete[] arrCopy;
+    }
+}
+
+void runSortBenchmarks() {
+    srand(time(nullptr));
+    
+    // Список сортировок для тестирования
+    struct SortFunction {
+        void (*func)(int*, size_t, bool (*)(int, int));
+        const char* name;
+    };
+    
+    SortFunction sorts[] = {
+        {BubbleSort, "BubbleSort"},
+        {InsertionSort, "InsertionSort"},
+        {SelectionSort, "SelectionSort"},
+        {ShellSort, "ShellSort"},
+        {CountSort, "CountSort"},
+        {QuickSort, "QuickSort"},
+        {QuickSortMod, "QuickSortMod"},
+        {MergeSort, "MergeSort"},
+        {HeapSort, "HeapSort"},
+        {RadixSort, "RadixSort"},
+        {TimSort, "TimSort"}
+    };
+    
+    const int sortCount = sizeof(sorts) / sizeof(sorts[0]);
+    
+    for (int i = 0; i < sortCount; i++) {
+        runSortTest(sorts[i].func, sorts[i].name);
+    }
+}
