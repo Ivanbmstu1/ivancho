@@ -1,0 +1,46 @@
+#include <stdint.h>
+
+int CountSimilarBytes(long long int value) {
+    uint8_t bytes[sizeof(long long int)];
+    int count[256] = {0}; 
+    int max_count = 0;
+    
+    
+    for (size_t i = 0; i < sizeof(long long int); i++) {
+        bytes[i] = (value >> (8 * i)) & 0xFF;
+    }
+    
+    
+    for (size_t i = 0; i < sizeof(long long int); i++) {
+        uint8_t byte = bytes[i];
+        if (byte != 0x00 && byte != 0xFF) {
+            count[byte]++;
+            if (count[byte] > max_count) {
+                max_count = count[byte];
+            }
+        }
+    }
+    
+    return max_count == 0 ? 0 : max_count;
+}
+
+       void SwapBytes(unsigned short* byte) {
+    unsigned char first = *byte & 0xFF;
+    unsigned char second = (*byte >> 8) & 0xFF;
+    *byte = (first << 8) | second;
+}
+
+unsigned char GetMaxByte(const unsigned int* arr, size_t size) {
+    unsigned char max = 0;
+    for (size_t i = 0; i < size; i++) {
+        unsigned int byte = arr[i];
+        for (int j = 0; j < 4; j++) {
+            unsigned char byte = (byte >> (j * 8)) & 0xFF;
+            if (byte > max) {
+                max = byte;
+            }
+        }
+    }
+    return max;
+}
+
