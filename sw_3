@@ -1,0 +1,58 @@
+#include "array_info.h"
+#include <limits>
+
+
+void getInfoArray(struct ArrayInfo* arInfo) {
+    if (!arInfo || !arInfo->ar || arInfo->size <= 0) return;
+    
+    
+    MinMax mm = GetMaxMin(arInfo->ar, arInfo->size);
+    arInfo->ind_min = mm.ind_min;
+    arInfo->ind_max = mm.ind_max;
+    
+    
+    double sum = 0;
+    for (int i = 0; i < arInfo->size; ++i) {
+        sum += arInfo->ar[i];
+    }
+    arInfo->mean = sum / arInfo->size;
+}
+
+
+struct MinMax GetMaxMin(const int* ar, int size) {
+    struct MinMax result = {0, 0};
+    if (!ar || size <= 0) return result;
+    
+    int min = ar[0], max = ar[0];
+    
+    for (int i = 1; i < size; ++i) {
+        if (ar[i] < min) {
+            min = ar[i];
+            result.ind_min = i;
+        }
+        if (ar[i] > max) {
+            max = ar[i];
+            result.ind_max = i;
+        }
+    }
+    
+    return result;
+}
+
+
+struct CountNum GetStatNumber(const int* ar, int size) {
+    struct CountNum result = {0, 0, 0};
+    if (!ar || size <= 0) return result;
+    
+    for (int i = 0; i < size; ++i) {
+        if (ar[i] > 0) {
+            result.pos++;
+        } else if (ar[i] < 0) {
+            result.neg++;
+        } else {
+            result.zero++;
+        }
+    }
+    
+    return result;
+}
